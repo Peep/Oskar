@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace Oskar
 {
+    // This class should interact with the console
+    // directly and provide input and output
     public class ConsoleInterpreter
     {
 
