@@ -1,42 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using ChatSharp;
 
 namespace Oskar
 {
     public class Bot
     {
-        public BotConfig Config { get; private set; }
-        public List<IrcClient> Clients { get; private set; }
-        public MessageProcessor MsgProc;
+        public static readonly Bot Instance;
 
-        public Bot()
+        public BotConfig Config;
+        public IrcClient Client { get; private set; }
+        private EventListener _listener;
+
+        static Bot()
         {
-            MsgProc = new MessageProcessor();
-            Clients = new List<IrcClient>();
-
-            LoadConfig();
+            Instance = new Bot();
         }
 
-        private void LoadConfig()
+        private Bot()
         {
             Config = new BotConfig("config.ini");
         }
 
         public void Setup()
         {
-            foreach (var server in Config.AutoJoinChannels.Keys)
-            {
-                var channels = Config.AutoJoinChannels[server].Split(',');
-                var client = new IrcClient(server, new IrcUser(Config.BotNick, Config.BotNick));
+            var server = Instance.Config.ServerHostname;
+            var client = new IrcClient(server, new IrcUser(Instance.Config.BotNick, Instance.Config.BotNick));
+            client.ConnectAsync();
+            Client = client;
 
-                client.ConnectionComplete += (s, e) =>
-                {
-                    foreach (var channel in channels)
-                        client.JoinChannel(channel);
-                };
-                client.ConnectAsync();
-                Clients.Add(client); // TODO: Set each client up with a MessageProcessor
-            }
+            _listener = new EventListener();
+            _listener.Listen();
         }
     }
 }

@@ -13,8 +13,11 @@ namespace Oskar
     {
         static void Main()
         {
-            var botThread = new Thread(new Bot().Setup);
+            var botThread = new Thread(Bot.Instance.Setup);
             botThread.Start();
+            botThread.Join();
+
+            while (true) ;
         }
     }
 }

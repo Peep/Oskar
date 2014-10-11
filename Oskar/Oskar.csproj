@@ -52,7 +52,8 @@
     <Compile Include="Bot.cs" />
     <Compile Include="BotConfig.cs" />
     <Compile Include="ConsoleInterpreter.cs" />
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="EventListener.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
