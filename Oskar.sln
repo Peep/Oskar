@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oskar", "Oskar\Oskar.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{22850D2E-4213-446D-9695-272C323B6A2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oskar.Tests", "Oskar.Tests\Oskar.Tests.csproj", "{7813F776-8147-4BB1-8D16-8CF80AA29DEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{22850D2E-4213-446D-9695-272C323B6A2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22850D2E-4213-446D-9695-272C323B6A2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22850D2E-4213-446D-9695-272C323B6A2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7813F776-8147-4BB1-8D16-8CF80AA29DEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7813F776-8147-4BB1-8D16-8CF80AA29DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7813F776-8147-4BB1-8D16-8CF80AA29DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7813F776-8147-4BB1-8D16-8CF80AA29DEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
