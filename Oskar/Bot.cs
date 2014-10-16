@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 using ChatSharp;
 
@@ -12,9 +10,10 @@ namespace Oskar
         public static readonly Bot Instance;
         public BotConfig Config { get; private set; }
         public IrcClient Client { get; private set; }
-        public List<Plugin> Plugins; 
 
-        private EventListener _listener;
+        static Dictionary<string, DomainHelper> LoadedDomains;
+        static Dictionary<string, Plugin> LoadedPlugins;
+        EventListener _listener;
 
         static Bot()
         {
@@ -24,104 +23,87 @@ namespace Oskar
         private Bot()
         {
             Config = new BotConfig("config.ini");
-
+            LoadedDomains = new Dictionary<string, DomainHelper>();
+            LoadedPlugins = new Dictionary<string, Plugin>();
         }
 
-        public void Setup()
+        public void Connect()
         {
-            //var client = new IrcClient(Instance.Config.ServerHostname, 
-            //    new IrcUser(Instance.Config.BotNick, Instance.Config.BotNick));
-            //client.ConnectAsync();
-            //Client = client;
+            var client = new IrcClient(Instance.Config.ServerHostname,
+                new IrcUser(Instance.Config.BotNick, Instance.Config.BotNick));
+            client.ConnectAsync();
+            Client = client;
 
-            //_listener = new EventListener();
-            //_listener.Listen();
+            _listener = new EventListener();
+            _listener.Listen();
         }
 
-        internal void LoadAllPlugins()
+        public void WatchForPlugins()
         {
-            Plugins = new List<Plugin>();
-
             if (!Directory.Exists("plugins"))
                 Directory.CreateDirectory("plugins");
+            var pluginDirectory = Path.Combine(Environment.CurrentDirectory, "plugins");
 
-            // We need a separate AppDomain to load the plugins folder.
-            var pluginLoadDomain = AppDomain.CreateDomain("PluginLoadDomain");
+            var set = new AppDomainSetup();
+            set.ApplicationBase = Environment.CurrentDirectory;
 
-            try
+            var watcher = new FileSystemWatcher(pluginDirectory, "*.dll");
+            watcher.EnableRaisingEvents = false;
+
+            foreach (var ass in Directory.GetFiles(pluginDirectory, "*.dll"))
+                LoadAss(ass);
+
+            while (!Console.KeyAvailable)
             {
-                // Load all assemblies in the 'plugins' folder into the PluginLoadDomain.
-                var allPlugins = Directory.GetFiles(    
-                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins"), "*.dll")
-                        .Select(p => pluginLoadDomain.Load(AssemblyName.GetAssemblyName(p))).ToList();
+                var fsr = watcher.WaitForChanged(WatcherChangeTypes.Created | WatcherChangeTypes.Deleted | WatcherChangeTypes.Changed, 100);
+                if (fsr.TimedOut)
+                    continue;
 
-                foreach (var assembly in allPlugins)
+                switch (fsr.ChangeType)
                 {
-                    // Check each assembly to ensure it's actually a plugin.
-                    var types = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Plugin)));
-
-                    // Attempt to load them into their own, separate AppDomain.
-                    foreach (var type in types)
-                    {
-                        var domain = AppDomain.CreateDomain(type.Assembly.GetName().Name);
-                        Plugin plugin;
-
-                        try
-                        {
-                            plugin = (Plugin) domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName);
-                        }
-                        catch (TypeLoadException e)
-                        {
-                            Console.WriteLine("Error loading plugin: {0}.", e.Message);
-                            continue;
-                        }
-
-                        Console.WriteLine(@"Loaded ""{0}"" by {1}.", plugin.Name, plugin.Author);
-                        plugin.Domain = domain;
-
-                        // This throws an NRE despite still calling OnCreate(). Temporary workaround.
-                        try { plugin.OnCreate(); }
-                        catch { }
-
-                        plugin.Enabled = true;
-                        Plugins.Add(plugin);
-                    }
+                    case WatcherChangeTypes.Created:
+                        LoadAss(Path.GetFullPath(fsr.Name));
+                        break;
+                    case WatcherChangeTypes.Deleted:
+                        UnloadAss(Path.GetFullPath(fsr.Name));
+                        break;
+                    case WatcherChangeTypes.Changed:
+                        UnloadAss(Path.GetFullPath(fsr.Name));
+                        LoadAss(Path.GetFullPath(fsr.Name));
+                        break;
                 }
             }
-            finally
-            {
-                // Unload the PluginLoadDomain, releasing unnecessary file locks.
-                AppDomain.Unload(pluginLoadDomain);
-                try
-                {
-                    Console.WriteLine(pluginLoadDomain.FriendlyName + " is still loaded!");
-                }
-                catch (AppDomainUnloadedException)
-                {
-                    Console.WriteLine("The 'PluginLoadDomain' AppDomain no longer exists.");
-                }
-            }
-
         }
 
-        internal void UnloadAllPlugins()
+        static void LoadAss(string assName)
         {
-            foreach (var plugin in Plugins.ToList())
-            {
-                plugin.OnDestroy();
-                Console.WriteLine(@"Unloaded ""{0}"" by {1}.", plugin.Name, plugin.Author);
-                plugin.Enabled = false;
-                AppDomain.Unload(plugin.Domain);
+            if (LoadedDomains.ContainsKey(assName))
+                return;
 
-                try
-                {
-                    Console.WriteLine(plugin.Domain.FriendlyName + " is still loaded!");
-                }
-                catch (AppDomainUnloadedException)
-                {
-                    Console.WriteLine("The plugin-specific AppDomain no longer exists.");
-                }
-            }
+            var helper = new DomainHelper(assName);
+            LoadedDomains[assName] = helper;
+
+            var plugin = helper.GetPlugin();
+            LoadedPlugins[assName] = plugin;
+            Console.WriteLine("Loading '{0}' by {1}", plugin.Name, plugin.Author);
+
+            // For some reason this throws an NRE despite still calling the method properly.
+            try { plugin.OnCreate(); } catch { }
+        }
+
+        static void UnloadAss(string assname)
+        {
+            if (!LoadedDomains.ContainsKey(assname))
+                return;
+
+            var helper = LoadedDomains[assname];
+            var plugin = LoadedPlugins[assname];
+            Console.WriteLine("Unloading '{0}' by {1}", plugin.Name, plugin.Author);
+            plugin.OnDestroy();
+
+            LoadedPlugins.Remove(assname);
+            LoadedDomains.Remove(assname);
+            helper.Unload();
         }
     }
 }

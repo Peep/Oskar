@@ -10,11 +10,6 @@ namespace Oskar
         public AppDomain Domain { get; set; }
 
         /// <summary>
-        /// Whether the plugin is loaded or not.
-        /// </summary>
-        public bool Enabled { get; set; }
-
-        /// <summary>
         /// The plugin name.
         /// </summary>
         public abstract string Name { get; }
