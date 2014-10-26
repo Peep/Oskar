@@ -5,7 +5,7 @@ using ChatSharp;
 
 namespace Oskar
 {
-    public class Bot
+    public class Bot : MarshalByRefObject
     {
         public static readonly Bot Instance;
         public BotConfig Config { get; private set; }
@@ -36,6 +36,7 @@ namespace Oskar
 
             _listener = new EventListener();
             _listener.Listen();
+            WatchForPlugins();
         }
 
         public void WatchForPlugins()
@@ -88,7 +89,8 @@ namespace Oskar
             Console.WriteLine("Loading '{0}' by {1}", plugin.Name, plugin.Author);
 
             // For some reason this throws an NRE despite still calling the method properly.
-            try { plugin.OnCreate(); } catch { }
+            plugin.Client = Instance.Client;
+            try { plugin.OnCreate(); } catch { Console.WriteLine("Exception thrown when loading plugin.");}
         }
 
         static void UnloadAss(string assname)
@@ -99,7 +101,6 @@ namespace Oskar
             var helper = LoadedDomains[assname];
             var plugin = LoadedPlugins[assname];
             Console.WriteLine("Unloading '{0}' by {1}", plugin.Name, plugin.Author);
-            plugin.OnDestroy();
 
             LoadedPlugins.Remove(assname);
             LoadedDomains.Remove(assname);

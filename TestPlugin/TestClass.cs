@@ -1,6 +1,8 @@
 ﻿using System;
 using ChatSharp.Events;
+using ChatSharp;
 using Oskar;
+using IrcUser = Oskar.Wrappers.IrcUser;
 
 namespace TestPlugin
 {
@@ -15,12 +17,24 @@ namespace TestPlugin
             Console.WriteLine("Hi. I'm a plugin! I live in " + AppDomain.CurrentDomain.FriendlyName);
             Console.ResetColor();
 
-            Bot.Instance.Client.UserJoinedChannel += OnUserJoinedChannel;
+            Client.UserJoinedChannel += OnUserJoinedChannel;
+            //Client.ChannelMessageRecieved += OnChannelMessageReceived;
         }
 
-        public void OnUserJoinedChannel(object sender, ChannelUserEventArgs e)
+        public void OnUserJoinedChannel(object sender, IrcUser user)
         {
-            Bot.Instance.Client.SendMessage("Sup, " + e.User, e.Channel.Name);
+            Bot.Instance.Client.SendMessage("Sup, " + user.Nick, "#bmrftest");
+        }
+
+        //public void OnUserJoinedChannel(object sender, ChannelUserEventArgs e)
+        //{
+        //    Bot.Instance.Client.SendMessage("Sup, " + e.User, e.Channel.Name);
+            
+        //}
+
+        public void OnChannelMessageReceived(object sender, PrivateMessageEventArgs e)
+        {
+            Bot.Instance.Client.SendMessage(e.PrivateMessage.Message);
         }
 
         public override void OnDestroy()

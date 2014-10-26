@@ -1,13 +1,14 @@
 ﻿using System;
+using ChatSharp;
 
 namespace Oskar
 {
     public abstract class Plugin : MarshalByRefObject
     {
         /// <summary>
-        /// A reference to the application domain hosting the plugin.
+        /// Exposes the event handlers to the plugin.
         /// </summary>
-        public AppDomain Domain { get; set; }
+        public IrcClient Client { get; set; }
 
         /// <summary>
         /// The plugin name.
