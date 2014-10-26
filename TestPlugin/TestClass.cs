@@ -15,7 +15,7 @@ namespace TestPlugin
             Console.WriteLine("Hi. I'm a plugin! I live in " + AppDomain.CurrentDomain.FriendlyName);
             Console.ResetColor();
 
-            Bot.Instance.Client.UserJoinedChannel += OnUserJoinedChannel;
+            Client.UserJoinedChannel += OnUserJoinedChannel;
         }
 
         public void OnUserJoinedChannel(object sender, ChannelUserEventArgs e)

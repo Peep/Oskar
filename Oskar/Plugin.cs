@@ -1,4 +1,5 @@
 ﻿using System;
+using ChatSharp;
 
 namespace Oskar
 {
@@ -7,7 +8,7 @@ namespace Oskar
         /// <summary>
         /// A reference to the application domain hosting the plugin.
         /// </summary>
-        public AppDomain Domain { get; set; }
+        public IrcClient Client { get; set; }
 
         /// <summary>
         /// The plugin name.
