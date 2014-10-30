@@ -40,8 +40,7 @@ namespace Oskar
         public DomainHelper(string path)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            //_domain = AppDomain.CreateDomain(path, null);
-            _domain = AppDomain.CurrentDomain;
+            _domain = AppDomain.CreateDomain(path, null);
 
             var proxyType = typeof(ProxyDomain);
             _proxy = (ProxyDomain)_domain.CreateInstanceAndUnwrap(proxyType.Assembly.FullName, proxyType.FullName);

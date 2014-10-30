@@ -55,26 +55,26 @@ namespace Oskar
             foreach (var ass in Directory.GetFiles(pluginDirectory, "*.dll"))
                 LoadAss(ass);
 
-            //while (!Console.KeyAvailable)
-            //{
-            //    var fsr = watcher.WaitForChanged(WatcherChangeTypes.Created | WatcherChangeTypes.Deleted | WatcherChangeTypes.Changed, 100);
-            //    if (fsr.TimedOut)
-            //        continue;
+            while (!Console.KeyAvailable)
+            {
+                var fsr = watcher.WaitForChanged(WatcherChangeTypes.Created | WatcherChangeTypes.Deleted | WatcherChangeTypes.Changed, 100);
+                if (fsr.TimedOut)
+                    continue;
 
-            //    switch (fsr.ChangeType)
-            //    {
-            //        case WatcherChangeTypes.Created:
-            //            LoadAss(Path.GetFullPath(fsr.Name));
-            //            break;
-            //        case WatcherChangeTypes.Deleted:
-            //            UnloadAss(Path.GetFullPath(fsr.Name));
-            //            break;
-            //        case WatcherChangeTypes.Changed:
-            //            UnloadAss(Path.GetFullPath(fsr.Name));
-            //            LoadAss(Path.GetFullPath(fsr.Name));
-            //            break;
-            //    }
-            //}
+                switch (fsr.ChangeType)
+                {
+                    case WatcherChangeTypes.Created:
+                        LoadAss(Path.GetFullPath(fsr.Name));
+                        break;
+                    case WatcherChangeTypes.Deleted:
+                        UnloadAss(Path.GetFullPath(fsr.Name));
+                        break;
+                    case WatcherChangeTypes.Changed:
+                        UnloadAss(Path.GetFullPath(fsr.Name));
+                        LoadAss(Path.GetFullPath(fsr.Name));
+                        break;
+                }
+            }
         }
 
         void LoadAss(string assName)
