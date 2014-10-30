@@ -8,7 +8,7 @@ namespace Oskar
         /// <summary>
         /// Exposes the event handlers to the plugin.
         /// </summary>
-        public IrcClient Client { get; set; }
+        public PluginManager Client { get; set; }
 
         /// <summary>
         /// The plugin name.

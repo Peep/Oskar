@@ -89,7 +89,7 @@ namespace Oskar
             Console.WriteLine("Loading '{0}' by {1}", plugin.Name, plugin.Author);
 
             // For some reason this throws an NRE despite still calling the method properly.
-            plugin.Client = Instance.Client;
+            plugin.Client = new PluginManager();
             try { plugin.OnCreate(); } catch { Console.WriteLine("Exception thrown when loading plugin.");}
         }
 

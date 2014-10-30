@@ -22,12 +22,12 @@ namespace Oskar.Wrappers
 
         public bool Contains(string nick)
         {
-            
+            return false;
         }
 
         public bool Contains(IrcUser user)
         {
-            
+            return false;
         }
 
         //public IrcUser this[int index]

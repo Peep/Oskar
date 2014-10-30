@@ -1,8 +1,8 @@
 ﻿using System;
 using ChatSharp.Events;
-using ChatSharp;
 using Oskar;
-using IrcUser = Oskar.Wrappers.IrcUser;
+using Oskar.Wrappers;
+using IrcClient = Oskar.Wrappers.IrcClient;
 
 namespace TestPlugin
 {
@@ -21,16 +21,16 @@ namespace TestPlugin
             //Client.ChannelMessageRecieved += OnChannelMessageReceived;
         }
 
-        public void OnUserJoinedChannel(object sender, IrcUser user)
-        {
-            Bot.Instance.Client.SendMessage("Sup, " + user.Nick, "#bmrftest");
-        }
-
-        //public void OnUserJoinedChannel(object sender, ChannelUserEventArgs e)
+        //public void OnUserJoinedChannel(object sender, IrcUser user)
         //{
-        //    Bot.Instance.Client.SendMessage("Sup, " + e.User, e.Channel.Name);
-            
+        //    Bot.Instance.Client.SendMessage("Sup, " + user.Nick, "#bmrftest");
         //}
+
+        public void OnUserJoinedChannel(object sender, IrcUser e)
+        {
+            //Bot.Instance.Client.SendMessage("Sup, " + e.User, e.);
+            Console.WriteLine(e);
+        }
 
         public void OnChannelMessageReceived(object sender, PrivateMessageEventArgs e)
         {
